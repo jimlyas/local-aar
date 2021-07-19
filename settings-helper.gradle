@@ -1,0 +1,23 @@
+def propFile = file("${rootDir}/local.properties")
+if (!propFile.exists()) propFile.createNewFile()
+def props = new Properties()
+propFile.withInputStream { props.load(it) }
+
+//Give preference to command line params over local.properties
+ext.useAAR = (hasProperty("useAAR")) ? getProperty("useAAR").toBoolean() : props.getProperty("useAAR", "false").toBoolean()
+ext.inDevModules = (hasProperty("modules")) ? getProperty("modules").split(" ") : props.getProperty('modules', ":app").split(" ")
+
+ext.includeAlways = { name, path = null ->
+    include(name)
+    if (path != null)
+        project(name).projectDir = new File(rootDir, path)
+}
+
+ext.includeIfEnabled = { name, path = null ->
+    if (ext.useAAR) {
+        if (ext.inDevModules.contains(name))
+            includeAlways(name, path)
+    } else {
+        includeAlways(name, path)
+    }
+}

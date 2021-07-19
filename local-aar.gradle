@@ -1,0 +1,40 @@
+ext {
+    localAARPublishConfig = [groupId: "local", version: "1.0"]
+}
+
+// Load local.properties if it is found
+def propFile = file("${rootDir}/local.properties")
+if (!propFile.exists()) propFile.createNewFile()
+def props = new Properties()
+propFile.withInputStream { props.load(it) }
+
+//Give preference to command line params over local.properties
+ext.useAAR = (hasProperty("useAAR")) ? getProperty("useAAR").toBoolean() : props.getProperty("useAAR", "false").toBoolean()
+ext.inDevModules = (hasProperty("modules")) ? getProperty("modules").split(" ") : props.getProperty('modules', ":app").split(" ")
+
+ext.useeTVModule = { moduleName ->
+    if (useAAR && !inDevModules.contains("$moduleName")) {
+        return "${localAARPublishConfig.groupId}$moduleName:${localAARPublishConfig.version}"
+    } else {
+        return project("$moduleName")
+    }
+}
+
+repositories {
+    maven {
+        url "$rootDir/mavenLocal"
+        content {
+            includeGroup "local"
+        }
+    }
+}
+
+configurations.all {
+    resolutionStrategy.dependencySubstitution {
+        if (useAAR) {
+            inDevModules.each { moduleName ->
+                substitute module("${localAARPublishConfig.groupId}$moduleName:${localAARPublishConfig.version}") with project(moduleName)
+            }
+        }
+    }
+}

@@ -1,0 +1,57 @@
+apply plugin: 'maven-publish'
+
+ext {
+    localAARPublishConfig = [groupId: "local", version: "1.0"]
+}
+
+// Load local.properties if it is found
+def propFile = file("${rootDir}/local.properties")
+if (!propFile.exists()) propFile.createNewFile()
+def props = new Properties()
+propFile.withInputStream { props.load(it) }
+
+//Give preference to command line params over local.properties
+ext.useAAR = (hasProperty("useAAR")) ? getProperty("useAAR").toBoolean() : props.getProperty("useAAR", "false").toBoolean()
+ext.inDevModules = (hasProperty("modules")) ? getProperty("modules").split(" ") : props.getProperty('modules', ":app").split(" ")
+
+publishing {
+    publications {
+        aar(MavenPublication) {
+            project.tasks.publish.dependsOn("assembleDebug")
+            groupId localAARPublishConfig.groupId
+            artifactId project.name
+            version localAARPublishConfig.version
+            artifact("$buildDir/outputs/aar/${project.getName()}-debug.aar")
+
+            pom.withXml {
+                def dependencies = asNode().appendNode('dependencies')
+                configurations.implementation.allDependencies.each { addDependencyNode(dependencies, it) }
+                configurations.api.allDependencies.each { addDependencyNode(dependencies, it) }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url = "$rootDir/mavenLocal"
+        }
+        project.tasks.publish.dependsOn("assembleDebug")
+    }
+}
+
+private void addDependencyNode(Node dependencies, Dependency it) {
+    if (it.group == null || it.group == localAARPublishConfig.groupId) {
+        println("ignoring dependency ${it.group}:${it.name}:${it.version}")
+        return
+    }
+
+    def dependency = dependencies.appendNode('dependency')
+    if (it.group == rootProject.name) {
+        dependency.appendNode('groupId', localAARPublishConfig.groupId)
+        dependency.appendNode('version', localAARPublishConfig.version)
+    } else {
+        dependency.appendNode('groupId', it.group)
+        dependency.appendNode('version', it.version)
+    }
+    dependency.appendNode('artifactId', it.name)
+}
