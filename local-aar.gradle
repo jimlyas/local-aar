@@ -12,7 +12,7 @@ propFile.withInputStream { props.load(it) }
 ext.useAAR = (hasProperty("useAAR")) ? getProperty("useAAR").toBoolean() : props.getProperty("useAAR", "false").toBoolean()
 ext.inDevModules = (hasProperty("modules")) ? getProperty("modules").split(" ") : props.getProperty('modules', ":app").split(" ")
 
-ext.useeTVModule = { moduleName ->
+ext.modulePath = { moduleName ->
     if (useAAR && !inDevModules.contains("$moduleName")) {
         return "${localAARPublishConfig.groupId}$moduleName:${localAARPublishConfig.version}"
     } else {
