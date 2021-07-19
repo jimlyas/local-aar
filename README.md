@@ -11,6 +11,7 @@ Follow this steps to start using this gradle scripts:
  - [Adding scripts to all library modules](#adding-scripts-to-all-library-modules)
  - [Configuration consumer modules](#configuration-consumer-modules)
  - [`settings.gradle` configuration](#settingsgradle-configuration)
+ - [Publish library modules](#publish-library-modules)
 
 
 ### Adding scripts to all library modules
@@ -50,6 +51,12 @@ includeIfEnabled(':library-b')
 includeIfEnabled(':feature-a')
 ```
 
+### Publish library modules
+Before start developing, you'll have to publish all your library modules first as aar. Do that by running this command:
+```shell
+gradlew publish
+```
+If build successful, you should see `mavenLocal` folder in your root directory.
 
 ## Reference
 [How We Improved Performance and Build Times in Android Studio](https://medium.com/gojekengineering/how-we-improved-performance-and-build-times-in-android-studio-306028166b79)
