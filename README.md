@@ -23,14 +23,14 @@ Follow this steps to start using this gradle scripts:
 ### Adding scripts to all library modules
 You may have more than one library modules in your project, add this line in all your library modules's `build.gradle`:
 ```groovy
-apply from: 'https://raw.githubusercontent.com/jimlyas/local-aar/main/publish.gradle'
+apply from: 'https://raw.githubusercontent.com/telkomdev/local-aar/main/publish.gradle'
 ```
 <br/>
 
 ### Configuration consumer modules
 Your app module or even your modules now might use the localized AAR, add this line to all your aar consumer's `build.gradle`:
 ```groovy
-apply from: 'https://raw.githubusercontent.com/jimlyas/local-aar/main/local-aar.gradle'
+apply from: 'https://raw.githubusercontent.com/telkomdev/local-aar/main/local-aar.gradle'
 ```
 Then change your library module declaration from:
 ```groovy
@@ -46,7 +46,7 @@ implementation modulePath(':library-a')
 In your project's `settings.gradle`, we will define ability to swap certain module during development. Configure it like this:
 ```groovy
 // Add gradle script
-apply from: 'https://raw.githubusercontent.com/jimlyas/local-aar/main/local-aar.gradle'
+apply from: 'https://raw.githubusercontent.com/telkomdev/local-aar/main/local-aar.gradle'
 
 rootProject.name = 'SampleApp'
 include ':app'
